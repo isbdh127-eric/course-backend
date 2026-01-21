@@ -1,0 +1,25 @@
+{
+  "name": "course-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "test:auth": "powershell -ExecutionPolicy Bypass -File test-auth.ps1"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.15.0",
+    "axios": "^1.13.2",
+    "axios-cookiejar-support": "^6.0.5",
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "tough-cookie": "^6.0.0"
+  },
+  "devDependencies": {
+    "prisma": "^6.15.0"
+  }
+}

@@ -1,0 +1,106 @@
+model Course {
+  id        String    @id @default(cuid())
+  name      String
+  teacher   String
+  credits   Int
+  createdAt DateTime  @default(now())
+  sections  Section[]
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Section {
+  id        String   @id @default(cuid())
+  courseId  String
+  code      String // 例如 "A1", "B2"
+  quota     Int // 名額
+  createdAt DateTime @default(now())
+  rawCourseId String @unique
+
+
+  course      Course        @relation(fields: [courseId], references: [id])
+  schedules   Schedule[]
+  PlannerItem PlannerItem[]
+}
+
+model Schedule {
+  id        String @id @default(cuid())
+  sectionId String
+  day       Int // 1=一, 2=二 ... 7=日
+  start     Int // 第幾節(或用分鐘也行)，先用整數
+  end       Int // 結束節（不含 end）
+
+  section Section @relation(fields: [sectionId], references: [id])
+}
+
+model User {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  username     String?
+  passwordHash String
+  createdAt    DateTime       @default(now())
+  tokens       RefreshToken[]
+  plannerItems PlannerItem[]
+}
+
+model RefreshToken {
+  id          String   @id @default(cuid())
+  userId      String
+  tokenHash   String   @unique
+  expiresAt   DateTime
+  revokedAt   DateTime?
+  replacedBy  String?  // 新 token 的 hash（rotation 用）
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+
+model PlannerItem {
+  id        String   @id @default(cuid())
+  userId    String
+  sectionId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  section Section @relation(fields: [sectionId], references: [id])
+
+  @@unique([userId, sectionId])
+}
+model RawCourse {
+  id            String   @id @default(cuid())
+  semester      String
+  subjectCode   String   // 科目代碼(新碼全碼)
+  classGroup    String?  // 上課班組
+  dayOfWeek     Int?     // 上課星期
+  periods       String?  // 上課節次 (例如 "6,7")
+  location      String?  // 上課地點
+
+  // 把整列原始資料先存成 JSON（超好用，後面要拆欄位再處理）
+  raw           Json
+
+  createdAt     DateTime @default(now())
+
+  // 防止重複匯入：用你那列資料最能代表「同一筆開課」的組合
+  @@unique([semester, subjectCode, classGroup, dayOfWeek, periods, location])
+}
+
+model Planner {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, courseId])
+}
+
