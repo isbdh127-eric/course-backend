@@ -40,6 +40,7 @@ app.get("/api/courses/:id/schedules", async (req, res) => {
 });
 */
 
+app.get("/health", (req, res) => res.send("ok"));
 
 
 
