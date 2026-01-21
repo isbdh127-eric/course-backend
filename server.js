@@ -48,6 +48,46 @@ app.use((err, req, res, next) => {
   });
 });
 
+function requireImportSecret(req, res, next) {
+  const secret = process.env.IMPORT_SECRET || "";
+  const got = req.headers["x-import-secret"] || "";
+  if (!secret || got !== secret) {
+    return res.status(401).json({ ok: false, message: "UNAUTHORIZED_IMPORT" });
+  }
+  next();
+}
+
+// 匯入 raw courses（分批）
+app.post("/api/admin/import/raw-courses", requireImportSecret, async (req, res) => {
+  try {
+    const items = Array.isArray(req.body?.items) ? req.body.items : [];
+    if (!items.length) return res.status(400).json({ ok: false, message: "EMPTY_ITEMS" });
+
+    // 你 rawCourse 欄位若不同，下面請對應你 schema 改一下
+    // 建議 rawCourse 至少要有: name, teacher, credits, term(或semester), rawId(或代碼/流水號)
+    const created = await prisma.rawCourse.createMany({
+      data: items,
+      // 如果你 rawCourse 有 unique，建議開啟 skipDuplicates
+      // skipDuplicates: true,
+    });
+
+    res.json({ ok: true, inserted: created.count });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, message: "IMPORT_FAILED" });
+  }
+});
+
+// （可選）清空 rawCourse，避免重灌重複
+app.post("/api/admin/clear/raw-courses", requireImportSecret, async (req, res) => {
+  try {
+    const r = await prisma.rawCourse.deleteMany({});
+    res.json({ ok: true, deleted: r.count });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, message: "CLEAR_FAILED" });
+  }
+});
 
 //健康檢查
 app.get("/health", (req, res) => res.send("ok"));
