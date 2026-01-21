@@ -1,48 +1,20 @@
 //console.log("BOOT:", __filename, new Date().toISOString());
-
 import dotenv from "dotenv";
 import courseRoutes from "./course.routes.js";
-
 dotenv.config();
 console.log("BOOT VERSION: 2026-01-18 A");
-
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-
 import express from "express";
 import plannerRoutes from "./planner.routes.js";
-
 const app = express();
 const prisma = new PrismaClient();
-
 const PORT = Number(process.env.PORT || 3000);
-
-
-//TEST
-/*
-app.get("/api/courses/:id/schedules", async (req, res) => {
-  const id = req.params.id;
-  const rows = await prisma.schedule.findMany({
-    where: { section: { courseId: id } },
-    select: {
-      day: true,
-      start: true,
-      end: true,
-      section: { select: { code: true } },
-    },
-    orderBy: [{ day: "asc" }, { start: "asc" }],
-  });
-  res.json({ ok: true, courseId: id, schedules: rows });
-});
-*/
-
 app.get("/health", (req, res) => res.send("ok"));
-
-
 
 /* =======================
    Middlewares
@@ -92,7 +64,11 @@ function needReLogin(res) {
 }
 
 function getAccessSecret() {
-  return process.env.JWT_ACCESS_SECRET || null;
+  return (
+    process.env.JWT_ACCESS_SECRET ||
+    process.env.JWT_SECRET ||
+    null
+  );
 }
 
 function accessTtl() {

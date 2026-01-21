@@ -3,3 +3,9 @@ node_modules/
 cookie.txt
 package.bad.json
 prisma/query-engine-*.node
+# Prisma engines (不要提交 Windows 引擎)
+prisma/query_engine-*.node
+prisma/query-engine-*.node
+
+# Raw excel (不建議上 repo)
+data/raw/
