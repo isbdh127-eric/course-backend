@@ -30,6 +30,19 @@ const PORT = Number(process.env.PORT || 3000);
 app.get("/__version", (req, res) => {
   res.send("backend-version: 2026-01-22-debugdb-A");
 });
+app.get("/api/admin/debug-db", requireImportSecret, (req, res) => {
+  try {
+    const url = process.env.DATABASE_URL || "";
+    // 只回傳 host / db，不回傳帳密
+    const m = url.match(/@([^:/]+).*\/([^?]+)/);
+    const host = m?.[1] || null;
+    const db = m?.[2] || null;
+
+    res.json({ ok: true, host, db });
+  } catch (e) {
+    res.status(500).json({ ok: false, message: e?.message || String(e) });
+  }
+});
 
 app.use(
   cors({
@@ -103,18 +116,6 @@ app.get("/api/admin/debug-counts", async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(500).json({ ok: false, message: e.message });
-  }
-});
-app.get("/api/admin/debug-db", requireImportSecret, async (req, res) => {
-  try {
-    const url = process.env.DATABASE_URL || "";
-    // 只回傳 host / db，不回傳帳密
-    const m = url.match(/@([^:/]+).*\/([^?]+)/);
-    const host = m?.[1] || null;
-    const db = m?.[2] || null;
-    res.json({ ok: true, host, db });
-  } catch (e) {
-    res.status(500).json({ ok: false, message: e?.message || String(e) });
   }
 });
 
