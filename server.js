@@ -62,15 +62,7 @@ function requireImportSecret(req, res, next) {
   }
   next();
 }
-app.post("/api/admin/migrate", requireImportSecret, async (req, res) => {
-  try {
-   // await runMigrate();
-    res.json({ ok: true });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ ok: false, message: "MIGRATE_FAILED", detail: String(e?.message || e) });
-  }
-});
+
 // 匯入 raw courses（分批）
 app.post("/api/admin/import/raw-courses", requireImportSecret, async (req, res) => {
   try {
@@ -103,7 +95,23 @@ app.post("/api/admin/clear/raw-courses", requireImportSecret, async (req, res) =
   }
 });
 
+const { run: migrateCourse } = require("./scripts/migrate_raw_to_course.cjs");
 
+app.post("/api/admin/migrate-course", requireImportSecret, async (req, res) => {
+  try {
+    await migrateCourse();
+    res.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({
+      ok: false,
+      message: "MIGRATE_COURSE_FAILED",
+      detail: e?.message,
+    });
+  }
+});
+
+const { runMigrate } = require("./scripts/migrate_raw_to_sections.cjs");
 
 app.post("/api/admin/migrate", requireImportSecret, async (req, res) => {
   try {

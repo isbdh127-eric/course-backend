@@ -13,6 +13,8 @@ model Course {
 
   createdAt  DateTime @default(now())
   sections   Section[]
+
+
 }
 
 generator client {
