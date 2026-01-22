@@ -11,29 +11,15 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import express from "express";
 import plannerRoutes from "./planner.routes.js";
+import sectionRoutes from "./section.routes.js";
+
 const app = express();
 const prisma = new PrismaClient();
 const PORT = Number(process.env.PORT || 3000);
 app.get("/health", (req, res) => res.send("ok"));
-const { runMigrate } = require("./scripts/migrate_raw_to_sections.cjs");
+
 
 // 觸發雲端轉換：rawCourse -> course/section/schedule
-app.post("/api/admin/migrate", requireImportSecret, async (req, res) => {
-  try {
-    await runMigrate();
-    res.json({ ok: true });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ ok: false, message: "MIGRATE_FAILED", detail: String(e?.message || e) });
-  }
-});
-
-/* =======================
-   Middlewares
-======================= */
-app.use(express.json());
-app.use(cookieParser());
-app.use("/api/courses", courseRoutes);
 
 app.use(
   cors({
@@ -41,6 +27,14 @@ app.use(
     credentials: true,
   })
 );
+/* =======================
+   Middlewares
+======================= */
+app.use(express.json());
+app.use(cookieParser());
+app.use("/api/courses", courseRoutes);
+app.use("/api/sections", sectionRoutes);
+
 
 app.use((req, res, next) => {
   console.log("REQ:", req.method, req.url);
@@ -68,7 +62,15 @@ function requireImportSecret(req, res, next) {
   }
   next();
 }
-
+app.post("/api/admin/migrate", requireImportSecret, async (req, res) => {
+  try {
+   // await runMigrate();
+    res.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, message: "MIGRATE_FAILED", detail: String(e?.message || e) });
+  }
+});
 // 匯入 raw courses（分批）
 app.post("/api/admin/import/raw-courses", requireImportSecret, async (req, res) => {
   try {
@@ -101,11 +103,11 @@ app.post("/api/admin/clear/raw-courses", requireImportSecret, async (req, res) =
   }
 });
 
-const { runMigrate } = require("./scripts/migrate_raw_to_sections.cjs");
+
 
 app.post("/api/admin/migrate", requireImportSecret, async (req, res) => {
   try {
-    await runMigrate();
+  //  await runMigrate();
     res.json({ ok: true });
   } catch (e) {
     console.error(e);

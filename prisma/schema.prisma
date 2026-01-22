@@ -1,10 +1,18 @@
 model Course {
-  id        String    @id @default(cuid())
-  name      String
-  teacher   String
-  credits   Int
-  createdAt DateTime  @default(now())
-  sections  Section[]
+  id         String   @id @default(cuid())
+  code   String? @unique // 課號，例如 NU101
+  name       String
+  teacher    String
+  credits    Int
+
+
+   
+  required   Boolean?    // 必修 / 選修
+  department String?     // 系所
+  grade      Int?        // 年級
+
+  createdAt  DateTime @default(now())
+  sections   Section[]
 }
 
 generator client {
@@ -20,25 +28,32 @@ datasource db {
 model Section {
   id        String   @id @default(cuid())
   courseId  String
-  code      String // 例如 "A1", "B2"
-  quota     Int // 名額
+  course    Course   @relation(fields: [courseId], references: [id])
+
+  code      String
+  quota     Int
+
+  location  String?     // 👈 上課地點（你剛剛已經遇到）
+
+  // ⚠️ rawCourseId 一定要保留
+  rawCourseId String?
+
+  schedules     Schedule[]
+  plannerItems  PlannerItem[]
+
   createdAt DateTime @default(now())
-  rawCourseId String @unique
-
-
-  course      Course        @relation(fields: [courseId], references: [id])
-  schedules   Schedule[]
-  PlannerItem PlannerItem[]
+   @@unique([courseId, code])
 }
 
-model Schedule {
-  id        String @id @default(cuid())
-  sectionId String
-  day       Int // 1=一, 2=二 ... 7=日
-  start     Int // 第幾節(或用分鐘也行)，先用整數
-  end       Int // 結束節（不含 end）
 
-  section Section @relation(fields: [sectionId], references: [id])
+model Schedule {
+  id        String   @id @default(cuid())
+  sectionId String
+  section   Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  day       Int
+  start     Int
+  end       Int
 }
 
 model User {
@@ -71,12 +86,15 @@ model PlannerItem {
   id        String   @id @default(cuid())
   userId    String
   sectionId String
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  section   Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
   createdAt DateTime @default(now())
 
-  user    User    @relation(fields: [userId], references: [id])
-  section Section @relation(fields: [sectionId], references: [id])
-
-  @@unique([userId, sectionId])
+  @@unique([userId, sectionId])    // 同一使用者不能重複加同一班
+  @@index([userId])
+  @@index([sectionId])
 }
 model RawCourse {
   id            String   @id @default(cuid())

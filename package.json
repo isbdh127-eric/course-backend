@@ -8,7 +8,7 @@
     "test:auth": "powershell -ExecutionPolicy Bypass -File test-auth.ps1"
   },
   "dependencies": {
-    "@prisma/client": "^6.15.0",
+    "@prisma/client": "^6.19.2",
     "axios": "^1.13.2",
     "axios-cookiejar-support": "^6.0.5",
     "bcrypt": "^6.0.0",
