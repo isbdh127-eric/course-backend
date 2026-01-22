@@ -434,6 +434,18 @@ app.post("/api/auth/logout", async (req, res) => {
     res.status(500).json({ ok: false, message: "SERVER_ERROR" });
   }
 });
+app.get("/api/admin/debug-counts", requireImportSecret, async (req, res) => {
+  try {
+    const raw = await prisma.rawCourse.count();
+    const course = await prisma.course.count();
+    const section = await prisma.section.count();
+    const schedule = await prisma.schedule.count();
+    res.json({ ok: true, raw, course, section, schedule });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, message: e?.message || String(e) });
+  }
+});
 
 /* =======================
    Courses / Planner APIs
