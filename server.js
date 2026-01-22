@@ -27,6 +27,9 @@ const PORT = Number(process.env.PORT || 3000);
 
 
 // 觸發雲端轉換：rawCourse -> course/section/schedule
+app.get("/__version", (req, res) => {
+  res.send("backend-version: 2026-01-22-debugdb-A");
+});
 
 app.use(
   cors({
