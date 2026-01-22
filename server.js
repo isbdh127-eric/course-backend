@@ -102,6 +102,18 @@ app.get("/api/admin/debug-counts", async (req, res) => {
     res.status(500).json({ ok: false, message: e.message });
   }
 });
+app.get("/api/admin/debug-counts", requireImportSecret, async (req, res) => {
+  try {
+    const raw = await prisma.rawCourse.count();
+    const course = await prisma.course.count();
+    const section = await prisma.section.count();
+    const schedule = await prisma.schedule.count();
+    res.json({ ok: true, raw, course, section, schedule });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, message: e?.message || String(e) });
+  }
+});
 
 app.get("/api/admin/debug-sample-raw", async (req, res) => {
   try {
