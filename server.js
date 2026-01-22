@@ -82,6 +82,38 @@ app.post("/api/admin/import/raw-courses", requireImportSecret, async (req, res) 
   data: items,
   skipDuplicates: true,
 });
+// ===== DEBUG APIs（只用來檢查 DB 狀態） =====
+app.get("/api/admin/debug-counts", async (req, res) => {
+  try {
+    const raw = await prisma.rawCourse.count();
+    const course = await prisma.course.count();
+    const section = await prisma.section.count();
+    const schedule = await prisma.schedule.count();
+
+    res.json({
+      ok: true,
+      raw,
+      course,
+      section,
+      schedule,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, message: e.message });
+  }
+});
+
+app.get("/api/admin/debug-sample-raw", async (req, res) => {
+  try {
+    const one = await prisma.rawCourse.findFirst({
+      orderBy: { createdAt: "desc" },
+    });
+    res.json({ ok: true, one });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, message: e.message });
+  }
+});
 
 
     res.json({ ok: true, inserted: created.count });
