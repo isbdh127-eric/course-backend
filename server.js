@@ -15,6 +15,18 @@ const app = express();
 const prisma = new PrismaClient();
 const PORT = Number(process.env.PORT || 3000);
 app.get("/health", (req, res) => res.send("ok"));
+const { runMigrate } = require("./scripts/migrate_raw_to_sections.cjs");
+
+// 觸發雲端轉換：rawCourse -> course/section/schedule
+app.post("/api/admin/migrate", requireImportSecret, async (req, res) => {
+  try {
+    await runMigrate();
+    res.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, message: "MIGRATE_FAILED", detail: String(e?.message || e) });
+  }
+});
 
 /* =======================
    Middlewares
@@ -65,11 +77,11 @@ app.post("/api/admin/import/raw-courses", requireImportSecret, async (req, res) 
 
     // 你 rawCourse 欄位若不同，下面請對應你 schema 改一下
     // 建議 rawCourse 至少要有: name, teacher, credits, term(或semester), rawId(或代碼/流水號)
-    const created = await prisma.rawCourse.createMany({
-      data: items,
-      // 如果你 rawCourse 有 unique，建議開啟 skipDuplicates
-      // skipDuplicates: true,
-    });
+ const created = await prisma.rawCourse.createMany({
+  data: items,
+  skipDuplicates: true,
+});
+
 
     res.json({ ok: true, inserted: created.count });
   } catch (e) {
@@ -86,6 +98,18 @@ app.post("/api/admin/clear/raw-courses", requireImportSecret, async (req, res) =
   } catch (e) {
     console.error(e);
     res.status(500).json({ ok: false, message: "CLEAR_FAILED" });
+  }
+});
+
+const { runMigrate } = require("./scripts/migrate_raw_to_sections.cjs");
+
+app.post("/api/admin/migrate", requireImportSecret, async (req, res) => {
+  try {
+    await runMigrate();
+    res.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, message: "MIGRATE_FAILED" });
   }
 });
 

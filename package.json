@@ -17,9 +17,7 @@
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
+    "prisma": "^6.15.0",
     "tough-cookie": "^6.0.0"
-  },
-  "devDependencies": {
-    "prisma": "^6.15.0"
   }
 }

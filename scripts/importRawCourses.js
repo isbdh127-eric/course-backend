@@ -146,3 +146,10 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+async function parseAllRawCourses() {
+  // 這裡用你原本的 xls 解析邏輯
+  // 最後回傳 items，每個 item 欄位要對上 Prisma rawCourse model
+  return items;
+}
+
+module.exports = { parseAllRawCourses };

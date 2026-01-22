@@ -16,6 +16,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
 model Section {
   id        String   @id @default(cuid())
   courseId  String
