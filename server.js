@@ -102,6 +102,19 @@ app.get("/api/admin/debug-counts", async (req, res) => {
     res.status(500).json({ ok: false, message: e.message });
   }
 });
+app.get("/api/admin/debug-db", requireImportSecret, async (req, res) => {
+  try {
+    const url = process.env.DATABASE_URL || "";
+    // 只回傳 host / db，不回傳帳密
+    const m = url.match(/@([^:/]+).*\/([^?]+)/);
+    const host = m?.[1] || null;
+    const db = m?.[2] || null;
+    res.json({ ok: true, host, db });
+  } catch (e) {
+    res.status(500).json({ ok: false, message: e?.message || String(e) });
+  }
+});
+
 app.get("/api/admin/debug-counts", requireImportSecret, async (req, res) => {
   try {
     const raw = await prisma.rawCourse.count();
