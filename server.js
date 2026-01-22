@@ -1,4 +1,12 @@
 //console.log("BOOT:", __filename, new Date().toISOString());
+import { createRequire } from "module";
+import { fileURLToPath } from "url";
+import path from "path";
+
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 import dotenv from "dotenv";
 import courseRoutes from "./course.routes.js";
 dotenv.config();
@@ -16,7 +24,6 @@ import sectionRoutes from "./section.routes.js";
 const app = express();
 const prisma = new PrismaClient();
 const PORT = Number(process.env.PORT || 3000);
-app.get("/health", (req, res) => res.send("ok"));
 
 
 // 觸發雲端轉換：rawCourse -> course/section/schedule
