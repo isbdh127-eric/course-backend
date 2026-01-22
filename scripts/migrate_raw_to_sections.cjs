@@ -69,7 +69,7 @@ async function main() {
 
     for (const rc of raws) {
       // 已轉過就跳過
-      const exists = await prisma.section.findUnique({
+      const exists = await prisma.section.findFirst({
         where: { rawCourseId: rc.id },
         select: { id: true },
       });
