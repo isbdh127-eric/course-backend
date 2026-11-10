@@ -1408,9 +1408,9 @@ function resetToFirstPageAndReload() {
                 dept: deptName,
                 location: foundLoc || (pickLocation(c) || "").trim() || "",
                 desc: c.desc || "",
-                type: c.required === true ? "core" : "elective",
+                type: c.type === "general" ? "general" : (c.required === true ? "core" : "elective"),
                 grade: String(c.grade ?? "1"),
-                category: c.category || "major",
+                category: c.type === "general" ? "general" : (c.category || "major"),
                 time: time.length ? time : [],
                 
                 sections,
@@ -1750,7 +1750,9 @@ async function showAllCourses(page = 1) {
 
     // ✅ 系所代碼（你現在 selectedDepartments 存代碼）
     const deptCodes = Array.isArray(selectedDepartments) ? selectedDepartments.filter(Boolean) : [];
-    const deptParam = deptCodes.length ? `&dept=${encodeURIComponent(deptCodes.join(","))}` : "";
+    const deptParam = currentFilter === "general"
+      ? "&type=general"
+      : (deptCodes.length ? `&dept=${encodeURIComponent(deptCodes.join(","))}` : "");
 
     const url = `/api/courses?page=${targetPage}&pageSize=${coursesPerPage}${deptParam}`;
     console.log("[showAllCourses] FETCH URL =", url);
