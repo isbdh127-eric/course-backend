@@ -26,6 +26,33 @@ const prisma = new PrismaClient();
 const PORT = Number(process.env.PORT || 3000);
 
 
+const allowedOrigins = [
+  "http://127.0.0.1:5500",
+  "http://localhost:5500",
+  "http://localhost:3000",
+  "https://course-backend-api-pfyj.onrender.com",
+];
+
+app.use(cors({
+  origin: function(origin, callback) {
+    // 允許沒有 origin 的請求（像 curl / Postman）
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error("CORS blocked: " + origin), false);
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "x-user-id"],
+}));
+
+// ✅ 確保 preflight 會回應
+app.options(/.*/, cors());
+
+
+
 // 觸發雲端轉換：rawCourse -> course/section/schedule
 app.get("/__version", (req, res) => {
   res.send("backend-version: 2026-01-22-debugdb-A");
@@ -284,11 +311,15 @@ function requireAuth(req, res, next) {
   }
 }
 
+app.post("/api/planner", (req, res, next) => {
+  if (req.body?.courses !== undefined) return requireAuth(req, res, next);
+  next();
+});
 app.use("/api/planner", plannerRoutes);
 /* =======================
    Health
 ======================= */
-app.get("/", (_, res) => res.send("選課系統後端正在運作中 🚀"));
+app.get("/", (_, res) => res.sendFile(path.join(__dirname, "index.html")));
 app.get("/__whoami", (_, res) =>
   res.json({ file: __filename, time: new Date().toISOString() })
 );
@@ -463,6 +494,55 @@ app.post("/api/auth/logout", async (req, res) => {
     res.status(500).json({ ok: false, message: "SERVER_ERROR" });
   }
 });
+app.get("/api/courses", async (req, res) => {
+  try {
+    const page = Math.max(1, Number(req.query.page || 1));
+    const pageSize = Math.min(200, Math.max(1, Number(req.query.pageSize || 50)));
+
+    const deptRaw = String(req.query.dept || "").trim();
+    const deptList = deptRaw
+      ? deptRaw.split(",").map(s => s.trim()).filter(Boolean)
+      : [];
+
+    // ✅ 你 DB course.department 看起來是 "11330" 這種
+    // dept=22140 → 用前3碼 "221" 去篩 (抓 22140 / 22160 ...)
+    const where = {};
+    if (deptList.length > 0) {
+      where.OR = deptList.map(code => ({
+        department: { startsWith: String(code).slice(0, 3) },
+      }));
+    }
+
+    // ✅ DEBUG：你一定要看到這幾行，才表示你改到「正在跑的後端」
+    console.log("[/api/courses] deptRaw =", deptRaw);
+    console.log("[/api/courses] deptList =", deptList);
+    console.log("[/api/courses] where =", JSON.stringify(where));
+
+    const [total, items] = await Promise.all([
+      prisma.course.count({ where }),
+      prisma.course.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        include: { sections: { include: { schedules: true } } },
+      }),
+    ]);
+
+    res.json({
+      ok: true,
+      __apiVersion: "FORCE_TEST_2026-02-21-DEPT-STARTSWITH",
+      page,
+      pageSize,
+      total,
+      totalPages: Math.max(1, Math.ceil(total / pageSize)),
+      items,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, message: e?.message || "SERVER_ERROR" });
+  }
+});
 app.get("/api/admin/debug-counts", requireImportSecret, async (req, res) => {
   try {
     const raw = await prisma.rawCourse.count();
@@ -491,10 +571,25 @@ app.get("/api/raw-courses", async (req, res) => {
 
 app.get("/api/planner", requireAuth, async (req, res) => {
   try {
-    const items = await prisma.plannerItem.findMany({
-      where: { userId: req.userId },
+    const where = { userId: req.userId };
+    const [items, saved] = await Promise.all([
+      prisma.plannerItem.findMany({ where }),
+      prisma.planner.findMany({
+        where,
+        select: { courseId: true },
+        orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      }),
+    ]);
+    const courses = saved.length ? await prisma.course.findMany({
+      where: { id: { in: saved.map((item) => item.courseId) } },
+      include: { sections: { include: { schedules: true } } },
+    }) : [];
+    const coursesById = new Map(courses.map((course) => [course.id, course]));
+    res.json({
+      ok: true,
+      data: items,
+      courses: saved.map((item) => coursesById.get(item.courseId)).filter(Boolean),
     });
-    res.json({ ok: true, data: items });
   } catch (err) {
   console.error("[server.js:L317] ERROR =", err);
   console.error(err?.stack);

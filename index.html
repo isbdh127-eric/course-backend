@@ -1,0 +1,2173 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NTUNHS 國北護課程個人規劃系統</title>
+    <style>
+        /* ========== 基礎設定 ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color .2s ease, box-shadow .2s ease, transform .15s ease;
+        }
+        
+        body { 
+            font-family: "Microsoft JhengHei", sans-serif; 
+            line-height: 1.6; 
+            background-color: #f5f5f5; 
+            margin: 0; 
+            color: #333;
+        }
+        
+        /* ========== 導航欄樣式 ========== */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0 20px;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo h1 {
+            color: #007d66;
+            font-size: 1.5em;
+            margin: 0;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .nav-link {
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #333;
+            text-decoration: none;
+        }
+        
+        .nav-link:hover {
+            background-color: #f0f9f6;
+            color: #007d66;
+        }
+        
+        .nav-link.active {
+            background-color: #007d66;
+            color: white;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-id {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .logout-btn {
+            padding: 6px 15px;
+            background: #888;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        
+        .logout-btn:hover {
+            background: #666;
+        }
+        
+        /* ========== 主內容區域 ========== */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* ========== 卡片樣式 ========== */
+        .card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            border-left: 4px solid #007d66;
+        }
+        
+        .card h2 {
+            color: #007d66;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+            position: relative;
+        }
+        
+        .card h2::after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background: #007d66;
+        }
+        
+        /* ========== 登入頁面專用樣式 ========== */
+        #login-overlay {
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            background: linear-gradient(135deg, #007d66 0%, #00a896 100%);
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            z-index: 2000;
+        }
+        
+        .login-card {
+            background: white; 
+            padding: 40px; 
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
+            width: 100%; 
+            max-width: 400px; 
+            text-align: center;
+        }
+        
+        .login-card h1 {
+            color: #007d66;
+            margin-bottom: 10px;
+        }
+        
+        .login-card input {
+            width: 100%; 
+            padding: 12px; 
+            margin: 10px 0; 
+            border: 1px solid #ddd; 
+            border-radius: 6px; 
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+        
+        .login-btn {
+            width: 100%; 
+            padding: 12px; 
+            background-color: #007d66; 
+            color: white; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            margin-top: 15px;
+            font-size: 1em;
+        }
+        
+        .login-btn:hover {
+            background-color: #005a4a;
+        }
+        
+        /* ========== 下拉選單樣式 ========== */
+        .select-container {
+            margin: 15px 0;
+        }
+        
+        .select-box {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            background-color: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        
+        .select-box:hover {
+            border-color: #007d66;
+        }
+        
+        .select-box:focus {
+            outline: none;
+            border-color: #007d66;
+            box-shadow: 0 0 0 3px rgba(0, 125, 102, 0.1);
+        }
+        
+        .select-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #007d66;
+        }
+        
+        .select-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .select-group {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* ========== 分頁導航 ========== */
+        .section-container {
+            display: none;
+        }
+        
+        .section-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* ========== 課程搜尋分頁 ========== */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .page-btn {
+            padding: 8px 15px;
+            background-color: #f0f0f0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        
+        .page-btn:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .page-btn.active {
+            background-color: #007d66;
+            color: white;
+        }
+        
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .page-info {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        /* 原有樣式（保持不變，但部分微調） */
+        .dept-group { 
+            display: none; 
+            margin-top: 10px; 
+            padding: 15px; 
+            border-left: 5px solid #007d66; 
+            background: #f9f9f9; 
+            border-radius: 6px;
+        }
+        
+        .checkbox-item { 
+            margin-right: 15px; 
+            display: inline-block; 
+            cursor: pointer; 
+            margin-bottom: 8px;
+            padding: 5px 10px;
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+        
+        .checkbox-item:hover {
+            background: #e0e0e0;
+        }
+        
+        /* 搜尋區域樣式 */
+        .search-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f0faf8;
+            border-radius: 8px;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+        }
+        
+        .search-btn {
+            padding: 12px 25px;
+            background-color: #007d66;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .search-btn:hover {
+            background-color: #005a4a;
+        }
+        
+        /* 課程清單樣式 */
+        .course-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .course-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            background-color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+        
+        .course-title {
+            font-weight: bold;
+            color: #007d66;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+        }
+        
+        .course-info {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        
+        .add-course-btn {
+            background-color: #007d66;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95em;
+            margin-top: 10px;
+            margin-right: 5px;
+        }
+        
+        .add-course-btn:hover {
+            background-color: #005a4a;
+        }
+        
+        .add-course-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        /* 課表格子樣式 */
+        .schedule-cell {
+            min-height: 70px;
+            position: relative;
+            padding: 3px;
+        }
+        
+        .course-in-schedule {
+            background-color: #e6f7f3;
+            border-left: 4px solid #007d66;
+            padding: 8px;
+            margin-bottom: 4px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        
+        .course-in-schedule:hover {
+            background-color: #c9f0e8;
+        }
+        
+        /* 已選課程清單 */
+        .selected-courses {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        .selected-course-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .remove-course-btn {
+            background: none;
+            border: none;
+            color: #ff6b6b;
+            cursor: pointer;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        
+        .remove-course-btn:hover {
+            background: #fff0f0;
+        }
+        
+        .credit-summary {
+            text-align: right;
+            font-weight: bold;
+            margin-top: 15px;
+            color: #007d66;
+            font-size: 1.1em;
+        }
+        
+        /* 學分分佈圖表樣式 */
+        .credit-distribution {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        .chart-container {
+            height: 250px;
+            margin-top: 20px;
+            position: relative;
+        }
+        
+        .distribution-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .distribution-category {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #007d66;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .category-title {
+            font-weight: bold;
+            color: #007d66;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .category-credits {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .subcategory {
+            margin-top: 10px;
+            padding-left: 10px;
+            border-left: 2px solid #ddd;
+        }
+        
+        /* 篩選器樣式 */
+        .filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .filter-item {
+            padding: 8px 16px;
+            background-color: #f0f0f0;
+            border-radius: 20px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .filter-item:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .filter-item.active {
+            background-color: #007d66;
+            color: white;
+        }
+        
+        /* 課程詳情彈窗 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .close-modal {
+            float: right;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #888;
+            padding: 5px;
+        }
+        
+        .close-modal:hover {
+            color: #333;
+        }
+        
+        /* 檢查衝堂相關樣式 */
+        .conflict-warning {
+            background-color: #fff5f5;
+            border: 1px solid #ffcccc;
+            border-left: 4px solid #ff6b6b;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            display: none;
+            color: #d32f2f;
+        }
+        
+        .conflict-highlight {
+            background-color: #fff0f0 !important;
+            border-left: 4px solid #ff6b6b !important;
+        }
+        
+        .check-conflict-btn {
+            padding: 10px 20px;
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+        
+        .check-conflict-btn:hover {
+            background-color: #ff5252;
+        }
+        
+        /* 系所標籤樣式 */
+        .dept-tag-container {
+            margin: 10px 0;
+            padding: 15px;
+            background-color: #f0f9f6;
+            border-radius: 8px;
+        }
+        
+        .dept-tag {
+            display: inline-block;
+            background-color: #007d66;
+            color: white;
+            padding: 5px 12px;
+            margin: 5px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            cursor: pointer;
+        }
+        
+        .dept-tag:hover {
+            background-color: #005a4a;
+        }
+        
+        .dept-tag-remove {
+            margin-left: 5px;
+            font-size: 0.8em;
+            cursor: pointer;
+        }
+        
+        /* 提示訊息樣式 */
+        .hint-message {
+            font-size: 0.9em;
+            color: #666;
+            padding: 12px;
+            background-color: #f9f9f9;
+            border-radius: 6px;
+            margin: 10px 0;
+            border-left: 4px solid #007d66;
+        }
+        
+        /* 課表樣式 */
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 10px; 
+            table-layout: fixed; 
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        th, td { 
+            border: 1px solid #e0e0e0; 
+            padding: 10px; 
+            text-align: center; 
+            font-size: 0.9em; 
+            vertical-align: top;
+        }
+        
+        th { 
+            background-color: #007d66; 
+            color: white; 
+            font-weight: 600;
+        }
+        
+        .time-col { 
+            background-color: #f2f2f2; 
+            font-weight: bold; 
+            width: 120px; 
+        }
+        
+        /* 按鈕群組 */
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .button-group button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        /* 系所選擇區塊 */
+        .department-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .department-section h3 {
+            color: #007d66;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        /* 響應式設計 */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .course-list {
+                grid-template-columns: 1fr;
+            }
+            
+            table {
+                font-size: 0.8em;
+            }
+            
+            .time-col {
+                width: 80px;
+            }
+            
+            .distribution-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .button-group button {
+                width: 100%;
+                margin-left: 0;
+            }
+        }
+        
+
+            body:has(#section-schedule.active) {
+                background: white;
+            }@media print {
+            @page {
+                size: A4 portrait;
+                margin: 10mm;
+            }
+
+            body:has(#section-schedule.active) > :not(#app-content),
+            body:has(#section-schedule.active) #app-content > :not(.main-content),
+            body:has(#section-schedule.active) .main-content > :not(#section-schedule),
+            #section-schedule > .card > :not(h2, #schedule-table, #conflict-warning) {
+                display: none !important;
+            }
+
+            body:has(#section-schedule.active) .main-content,
+            #section-schedule > .card {
+                max-width: none;
+                margin: 0;
+                padding: 0;
+                border: 0;
+                box-shadow: none;
+            }
+
+            #schedule-table {
+                overflow: visible;
+                border-radius: 0;
+                box-shadow: none;
+            }
+
+            #schedule-table tr {
+                break-inside: avoid;
+            }
+
+            #schedule-table th,
+            #schedule-table td {
+                padding: 2px 4px;
+                color: #111;
+                font-size: 9pt;
+                overflow-wrap: anywhere;
+            }
+
+            #schedule-table .course-in-schedule {
+                padding: 2px 4px;
+                margin: 0 0 2px;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 登入頁面 -->
+    <div id="login-overlay">
+        <div class="login-card">
+            <h1>NTUNHS 課程規劃系統</h1>
+            <p>請輸入學號與密碼進入系統</p>
+            <input type="text" id="username" placeholder="學號">
+            <input type="password" id="password" placeholder="密碼">
+            <button class="login-btn" onclick="handleLogin()">登入系統</button>
+        </div>
+    </div>
+
+    <!-- 主應用程式內容 -->
+    <div id="app-content" style="display: none;">
+        <!-- 導航欄 -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="logo">
+                    <h1>NTUNHS 課程規劃助手</h1>
+                </div>
+                
+                <div class="nav-links">
+                    <a href="javascript:void(0)" class="nav-link active" onclick="switchSection('section-courses')">課程搜尋</a>
+                    <a href="javascript:void(0)" class="nav-link" onclick="switchSection('section-schedule')">我的課表</a>
+                    <a href="javascript:void(0)" class="nav-link" onclick="switchSection('section-analysis')">學分分析</a>
+                    
+                    <div class="user-info">
+                        <span class="user-id">學號: <span id="display-user-id"></span></span>
+                        <button class="logout-btn" onclick="handleLogout()">登出</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 主要內容區域 -->
+        <div class="main-content">
+            <!-- 課程搜尋與系所選擇區塊 -->
+            <div class="section-container active" id="section-courses">
+                <div class="card">
+                    <h2>1. 選擇學制與系所</h2>
+                    
+                    <div class="department-section">
+                        <p>請選擇學制以顯示對應系所：</p>
+                        
+                        <div class="select-group">
+                            <div class="select-container">
+                                <label class="select-label">選擇學制</label>
+                                <select id="edu-system-select" class="select-box" onchange="updateDepartmentOptions()">
+                                    <option value="">請選擇學制</option>
+                                    <option value="2-tech-short">二專</option>
+                                    <option value="2-tech">二技</option>
+                                    <option value="2-tech-3y">二技(三年)</option>
+                                    <option value="4-tech">四技</option>
+                                    <option value="post-grad-multi">學士後多元專長</option>
+                                    <option value="master">碩士班</option>
+                                    <option value="phd">博士班</option>
+                                    <option value="post-grad-degree">學士後學位學程</option>
+                                    <option value="post-grad-dept">學士後系</option>
+                                </select>
+                            </div>
+                            
+                            <div class="select-container">
+                                <label class="select-label">選擇系所</label>
+                                <select id="department-select" class="select-box" onchange="selectDepartment()" disabled>
+                                    <option value="">請先選擇學制</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- 已選系所顯示 -->
+                        <div id="selected-dept-tags" class="dept-tag-container" style="display: none;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <small style="font-weight: bold;">已選系所：</small>
+                                <button onclick="clearSelectedDepts()" style="padding: 5px 10px; font-size: 0.8em; background: #ff6b6b; color: white; border: none; border-radius: 4px; cursor: pointer;">清除所有系所</button>
+                            </div>
+                            <div id="dept-tags-container"></div>
+                        </div>
+                        
+                        <div class="button-group">
+                            <button onclick="console.log('[BTN] clicked'); applySelectedDepartments();">套用系所篩選</button>   
+                            <button onclick="clearSelectedDepts()" style="background-color: #ff6b6b; color: white;">清除系所選擇</button>
+                        </div>
+                        
+                        <div class="hint-message">
+                            💡 提示：選擇系所後，點擊「套用系所篩選」來顯示該系所的相關課程
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2>2. 搜尋課程</h2>
+                    <div class="search-container">
+                        <input type="text" id="course-search" placeholder="搜尋課程名稱、代碼或教師..." class="search-box">
+                        <button class="search-btn" onclick="searchCourses()">搜尋課程</button>
+                        <button class="search-btn" onclick="showAllCourses()">顯示全部</button>
+                    </div>
+                    
+                    <!-- 篩選器 -->
+                    <div class="filter-container" id="course-filters">
+                        <div class="filter-item active" data-filter="all">全部課程</div>
+                        <div class="filter-item" data-filter="core">必修課程</div>
+                        <div class="filter-item" data-filter="elective">選修課程</div>
+                        <div class="filter-item" data-filter="general">通識課程</div>
+                        <div class="filter-item" data-filter="1">一年級</div>
+                        <div class="filter-item" data-filter="2">二年級</div>
+                        <div class="filter-item" data-filter="3">三年級</div>
+                        <div class="filter-item" data-filter="4">四年級</div>
+                    </div>
+                    
+                    <!-- 課程結果區域 -->
+                    <div id="course-results">
+                        <p>請先選擇系所或直接搜尋課程。</p>
+                    </div>
+                    
+                    <!-- 分頁導航 -->
+                    <div class="pagination" id="pagination-container" style="display: none;">
+                        <button class="page-btn" onclick="previousPage()" id="prev-btn">上一頁</button>
+                        <span class="page-info" id="page-info">第 1 頁 / 共 1 頁</span>
+                        <button class="page-btn" onclick="nextPage()" id="next-btn">下一頁</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 已選課程與學分分析區塊 -->
+            <div class="section-container" id="section-analysis">
+                <div class="card">
+                    <h2>已選課程與學分分析</h2>
+                    
+                    <div class="selected-courses">
+                        <h3>已選課程清單</h3>
+                        <div id="selected-courses-list">
+                            <p>尚未選擇任何課程</p>
+                        </div>
+                        <div class="credit-summary">
+                            總學分: <span id="total-credits">0</span> 學分
+                        </div>
+                    </div>
+                    
+                    <!-- 學分分佈圖表 -->
+                    <div class="credit-distribution">
+                        <h3>學分分佈分析</h3>
+                        <div class="chart-container">
+                            <canvas id="creditChart"></canvas>
+                        </div>
+                        
+                        <div class="distribution-grid">
+                            <div class="distribution-category">
+                                <div class="category-title">必修課程</div>
+                                <div class="category-credits" id="required-credits">0</div>
+                                <div class="subcategory">
+                                    <div>專業必修: <span id="required-major">0</span></div>
+                                    <div>通識必修: <span id="required-general">0</span></div>
+                                </div>
+                            </div>
+                            
+                            <div class="distribution-category">
+                                <div class="category-title">選修課程</div>
+                                <div class="category-credits" id="elective-credits">0</div>
+                                <div class="subcategory">
+                                    <div>專業選修: <span id="elective-major">0</span></div>
+                                    <div>通識選修: <span id="elective-general">0</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 課表區塊 -->
+            <div class="section-container" id="section-schedule">
+                <div class="card">
+                    <h2>我的擬排課表</h2>
+                    
+                    <!-- 衝堂警告 -->
+                    <div id="conflict-warning" class="conflict-warning">
+                        ⚠️ 發現時間衝突！請檢查課表中的重疊課程。
+                    </div>
+                    
+                    <table id="schedule-table">
+                        <thead>
+                            <tr>
+                                <th class="time-col">節次 / 時間</th>
+                                <th>週一</th>
+                                <th>週二</th>
+                                <th>週三</th>
+                                <th>週四</th>
+                                <th>週五</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="time-col">01 (08:10~09:00)</td><td class="schedule-cell" data-day="1" data-session="1"></td><td class="schedule-cell" data-day="2" data-session="1"></td><td class="schedule-cell" data-day="3" data-session="1"></td><td class="schedule-cell" data-day="4" data-session="1"></td><td class="schedule-cell" data-day="5" data-session="1"></td></tr>
+                            <tr><td class="time-col">02 (09:10~10:00)</td><td class="schedule-cell" data-day="1" data-session="2"></td><td class="schedule-cell" data-day="2" data-session="2"></td><td class="schedule-cell" data-day="3" data-session="2"></td><td class="schedule-cell" data-day="4" data-session="2"></td><td class="schedule-cell" data-day="5" data-session="2"></td></tr>
+                            <tr><td class="time-col">03 (10:10~11:00)</td><td class="schedule-cell" data-day="1" data-session="3"></td><td class="schedule-cell" data-day="2" data-session="3"></td><td class="schedule-cell" data-day="3" data-session="3"></td><td class="schedule-cell" data-day="4" data-session="3"></td><td class="schedule-cell" data-day="5" data-session="3"></td></tr>
+                            <tr><td class="time-col">04 (11:10~12:00)</td><td class="schedule-cell" data-day="1" data-session="4"></td><td class="schedule-cell" data-day="2" data-session="4"></td><td class="schedule-cell" data-day="3" data-session="4"></td><td class="schedule-cell" data-day="4" data-session="4"></td><td class="schedule-cell" data-day="5" data-session="4"></td></tr>
+                            <tr><td class="time-col">05 (12:40~13:30)</td><td class="schedule-cell" data-day="1" data-session="5"></td><td class="schedule-cell" data-day="2" data-session="5"></td><td class="schedule-cell" data-day="3" data-session="5"></td><td class="schedule-cell" data-day="4" data-session="5"></td><td class="schedule-cell" data-day="5" data-session="5"></td></tr>
+                            <tr><td class="time-col">06 (13:40~14:30)</td><td class="schedule-cell" data-day="1" data-session="6"></td><td class="schedule-cell" data-day="2" data-session="6"></td><td class="schedule-cell" data-day="3" data-session="6"></td><td class="schedule-cell" data-day="4" data-session="6"></td><td class="schedule-cell" data-day="5" data-session="6"></td></tr>
+                            <tr><td class="time-col">07 (14:40~15:30)</td><td class="schedule-cell" data-day="1" data-session="7"></td><td class="schedule-cell" data-day="2" data-session="7"></td><td class="schedule-cell" data-day="3" data-session="7"></td><td class="schedule-cell" data-day="4" data-session="7"></td><td class="schedule-cell" data-day="5" data-session="7"></td></tr>
+                            <tr><td class="time-col">08 (15:40~16:30)</td><td class="schedule-cell" data-day="1" data-session="8"></td><td class="schedule-cell" data-day="2" data-session="8"></td><td class="schedule-cell" data-day="3" data-session="8"></td><td class="schedule-cell" data-day="4" data-session="8"></td><td class="schedule-cell" data-day="5" data-session="8"></td></tr>
+                            <tr><td class="time-col">09 (16:40~17:30)</td><td class="schedule-cell" data-day="1" data-session="9"></td><td class="schedule-cell" data-day="2" data-session="9"></td><td class="schedule-cell" data-day="3" data-session="9"></td><td class="schedule-cell" data-day="4" data-session="9"></td><td class="schedule-cell" data-day="5" data-session="9"></td></tr>
+                            <tr><td class="time-col">10 (17:40~18:30)</td><td class="schedule-cell" data-day="1" data-session="10"></td><td class="schedule-cell" data-day="2" data-session="10"></td><td class="schedule-cell" data-day="3" data-session="10"></td><td class="schedule-cell" data-day="4" data-session="10"></td><td class="schedule-cell" data-day="5" data-session="10"></td></tr>
+                            <tr><td class="time-col">11 (18:35~19:25)</td><td class="schedule-cell" data-day="1" data-session="11"></td><td class="schedule-cell" data-day="2" data-session="11"></td><td class="schedule-cell" data-day="3" data-session="11"></td><td class="schedule-cell" data-day="4" data-session="11"></td><td class="schedule-cell" data-day="5" data-session="11"></td></tr>
+                            <tr><td class="time-col">12 (19:30~20:20)</td><td class="schedule-cell" data-day="1" data-session="12"></td><td class="schedule-cell" data-day="2" data-session="12"></td><td class="schedule-cell" data-day="3" data-session="12"></td><td class="schedule-cell" data-day="4" data-session="12"></td><td class="schedule-cell" data-day="5" data-session="12"></td></tr>
+                            <tr><td class="time-col">13 (20:25~21:15)</td><td class="schedule-cell" data-day="1" data-session="13"></td><td class="schedule-cell" data-day="2" data-session="13"></td><td class="schedule-cell" data-day="3" data-session="13"></td><td class="schedule-cell" data-day="4" data-session="13"></td><td class="schedule-cell" data-day="5" data-session="13"></td></tr>
+                            <tr><td class="time-col">14 (21:20~22:10)</td><td class="schedule-cell" data-day="1" data-session="14"></td><td class="schedule-cell" data-day="2" data-session="14"></td><td class="schedule-cell" data-day="3" data-session="14"></td><td class="schedule-cell" data-day="4" data-session="14"></td><td class="schedule-cell" data-day="5" data-session="14"></td></tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="button-group">
+                        <button onclick="clearSchedule()" style="background-color: #ff6b6b; color: white;">清空課表</button>
+                        <button onclick="saveSchedule()" style="background-color: #007d66; color: white;">儲存課表</button>
+                        <button onclick="checkAllConflicts()" class="check-conflict-btn">檢查衝堂</button>
+                        <button type="button" onclick="window.print()">匯出 PDF</button>
+                    </div>
+                    
+                    <div class="hint-message">
+                        💡 提示：點擊課表中的課程可快速移除，使用「檢查衝堂」功能確保課表無時間衝突
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 課程詳情彈窗 -->
+        <div id="course-detail-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal" onclick="closeCourseDetail()">&times;</span>
+                <h3 id="modal-course-title"></h3>
+                <div id="modal-course-details"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 載入 Chart.js 圖表庫 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+      function renderBackendPagination({ page, totalPages, total }) {
+  const paginationContainer = document.getElementById('pagination-container');
+  const pageInfo = document.getElementById('page-info');
+  const prevBtn = document.getElementById('prev-btn');
+  const nextBtn = document.getElementById('next-btn');
+
+  // ✅ 後端分頁：永遠顯示（只要 totalPages > 1）
+  paginationContainer.style.display = totalPages > 1 ? 'flex' : 'none';
+
+  pageInfo.textContent = `第 ${page} 頁 / 共 ${totalPages} 頁（後端總數：${total}）`;
+  prevBtn.disabled = page <= 1;
+  nextBtn.disabled = page >= totalPages;
+}
+
+        // ===== API 設定 =====
+        const API_BASE = location.protocol === "file:" || location.port === "5500"
+            ? "http://localhost:3000"
+            : location.origin;
+        
+        let auth = {
+            accessToken: localStorage.getItem("accessToken") || "",
+            userId: localStorage.getItem("userId") || "",
+        };
+
+        // 統一的 API 呼叫函數
+        async function apiFetch(path, { method = "GET", body, headers = {} } = {}) {
+            const res = await fetch(`${API_BASE}${path}`, {
+                method,
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...(auth.accessToken ? { Authorization: `Bearer ${auth.accessToken}` } : {}),
+                    ...(auth.userId ? { "x-user-id": auth.userId } : {}),
+                    ...headers,
+                },
+                body: body ? JSON.stringify(body) : undefined,
+            });
+
+            const text = await res.text();
+            let data = null;
+            try { data = text ? JSON.parse(text) : null; } catch { data = { raw: text }; }
+
+            if (!res.ok) {
+                const msg = data?.message || data?.error || `HTTP ${res.status}`;
+                throw new Error(msg);
+            }
+            return data;
+        }
+
+        // ===== 系所代碼對照表 =====
+        const DEPT_MAP = {
+            "11169": "護理系中西醫結合護理碩士班",
+            "43160": "人工智慧與健康大數據研究所",
+            "13140": "四年制高齡健康照護系",
+            "1C120": "二年制護理助產及婦女健康系",
+            "1D120": "二年制醫護教育暨數位學習系",
+            "21120": "四年制健康事業管理系",
+            "22140": "四年制資訊管理系",
+            "23140": "四年制休閒產業與健康促進系",
+            "24120": "二年制長期照護系",
+            "25140": "四年制語言治療與聽力學系",
+            "31120": "二年制嬰幼兒保育系",
+            "32140": "四年制運動保健系",
+            "33140": "四年制生死與健康心理諮商系",
+            "41140": "高齡與運動健康暨嬰幼兒保育技優專班",
+            "42140": "智慧健康科技技優專班",
+            "11230": "進修部護理系(日間班)",
+            "11330": "進修部護理系(夜間班)",
+            "11860": "國際護理碩士班",
+            "11170": "護理系博士班",
+            "11870": "國際護理博士班",
+            "11190": "護理系學士後學士班(學士後護理系)",
+            "11468": "護理系碩士在職專班護專成人專科組",
+            "30860": "國際運動科學外國學生專班",
+            "33161": "生死與健康心理諮商系碩士班生死學組",
+            "23160": "休閒產業與健康促進系旅遊健康碩士班",
+            "23460": "休閒產業與健康促進系碩士在職專班",
+            "24160": "長期照護系碩士班",
+            "13160": "高齡健康照護系碩士班",
+            "21160": "健康事業管理系碩士班",
+            "21460": "健康事業管理系碩士在職專班",
+            "20160": "健康科技學院碩士班",
+            "22160": "資訊管理系碩士班",
+            "32160": "運動保健系碩士班",
+            "32460": "運動保健系碩士在職專班",
+            "25161": "語言治療與聽力學系碩士班語言治療組",
+            "31160": "嬰幼兒保育系碩士班",
+            "1D160": "醫護教育暨數位學習系碩士班",
+            "1C160": "護理助產及婦女健康系護理助產碩士班",
+            "11164": "護理系碩士班護研精神組",
+            "11162": "護理系碩士班護研老人組",
+            "11163": "護理系碩士班護研婦女組",
+            "11166": "護理系碩士班護研兒童組",
+            "11165": "護理系碩士班護研社區組",
+            "11168": "護理系碩士班護研成人專科組",
+            "11167": "護理系碩士班護研資訊組",
+            "11161": "護理系碩士班護研成人組",
+            "11467": "護理系碩士在職專班護專資訊組",
+            "11462": "護理系碩士在職專班護專老人組",
+            "11466": "護理系碩士在職專班護專兒童組",
+            "11465": "護理系碩士在職專班護專社區組",
+            "11464": "護理系碩士在職專班護專精神組",
+            "11461": "護理系碩士在職專班護專成人組",
+            "11463": "護理系碩士在職專班護專婦女組",
+            "11140": "四年制護理系",
+            "11120": "二年制護理系",
+            "1D110": "二專醫護教育暨數位學習科",
+            "31120": "二年制嬰幼兒保育系",
+            "31180": "嬰幼兒保育系學士後教保學位學程",
+            "21140": "四年制健康事業管理系",
+            "21330": "二年制進修部健康事業管理系"
+        };
+// ✅ 全部系所代碼 → 顯示名稱（完整）
+const DEPT_LABEL_MAP = {
+  "11169": "護理系中西醫結合護理碩士班",
+  "43160": "人工智慧與健康大數據研究所",
+  "13140": "高齡健康照護系",
+  "1C120": "護理助產及婦女健康系",
+  "1D120": "醫護教育暨數位學習系",
+  "21120": "健康事業管理系",
+  "22140": "資訊管理系",
+  "23140": "休閒產業與健康促進系",
+  "24120": "長期照護系",
+  "25140": "語言治療與聽力學系",
+  "31120": "嬰幼兒保育系",
+  "32140": "運動保健系",
+  "33140": "生死與健康心理諮商系",
+  "41140": "高齡與運動健康暨嬰幼兒保育技優專班",
+  "42140": "智慧健康科技技優專班",
+  "11230": "進修部護理系(日間班)",
+  "11330": "進修部護理系(夜間班)",
+  "11860": "國際護理碩士班",
+  "11170": "護理系博士班",
+  "11870": "國際護理博士班",
+  "11190": "護理系學士後學士班(學士後護理系)",
+  "11468": "護理系碩士在職專班護專成人專科組",
+  "30860": "國際運動科學外國學生專班",
+  "33161": "生死與健康心理諮商系碩士班生死學組",
+  "23160": "休閒產業與健康促進系旅遊健康碩士班",
+  "23460": "休閒產業與健康促進系碩士在職專班",
+  "24160": "長期照護系碩士班",
+  "13160": "高齡健康照護系碩士班",
+  "21160": "健康事業管理系碩士班",
+  "21460": "健康事業管理系碩士在職專班",
+  "20160": "健康科技學院碩士班",
+  "22160": "資訊管理系碩士班",
+  "32160": "運動保健系碩士班",
+  "32460": "運動保健系碩士在職專班",
+  "25161": "語言治療與聽力學系碩士班語言治療組",
+  "31160": "嬰幼兒保育系碩士班",
+  "1D160": "醫護教育暨數位學習系碩士班",
+  "1C160": "護理助產及婦女健康系護理助產碩士班",
+  "11164": "護理系碩士班護研精神組",
+  "11162": "護理系碩士班護研老人組",
+  "11163": "護理系碩士班護研婦女組",
+  "11166": "護理系碩士班護研兒童組",
+  "11165": "護理系碩士班護研社區組",
+  "11168": "護理系碩士班護研成人專科組",
+  "11167": "護理系碩士班護研資訊組",
+  "11161": "護理系碩士班護研成人組",
+  "11467": "護理系碩士在職專班護專資訊組",
+  "11462": "護理系碩士在職專班護專老人組",
+  "11466": "護理系碩士在職專班護專兒童組",
+  "11465": "護理系碩士在職專班護專社區組",
+  "11464": "護理系碩士在職專班護專精神組",
+  "11461": "護理系碩士在職專班護專成人組",
+  "11463": "護理系碩士在職專班護專婦女組",
+  "11140": "護理系",
+  "11120": "護理系",
+  "1D110": "二專醫護教育暨數位學習科",
+  "31180": "嬰幼兒保育系學士後教保學位學程",
+  "21140": "健康事業管理系",
+  "21330": "進修部健康事業管理系"
+};
+
+// ✅ 給下拉選單、tag 顯示用（找不到就退回 DEPT_MAP 或代碼）
+function deptLabel(code) {
+  return DEPT_LABEL_MAP[code] || DEPT_MAP[code] || String(code);
+}
+        // ===== 工具函數 =====
+        function dayToZh(day) {
+            const map = { 1: "一", 2: "二", 3: "三", 4: "四", 5: "五", 6: "六", 7: "日" };
+            return map[Number(day)] || String(day);
+        }
+
+        function pickLocation(obj) {
+            return (
+                obj?.location ||
+                obj?.place ||
+                obj?.room ||
+                obj?.classroom ||
+                obj?.classRoom ||
+                obj?.classroomName ||
+                obj?.loc ||
+                obj?.locName ||
+                obj?.["上課地點"] ||
+                ""
+            );
+        }
+        function scrollToCourseTop() {
+  const section = document.getElementById("section-courses");
+  if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
+  else window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+async function reloadCourses(page = 1) {
+  // ✅ 強制把頁碼重設
+  currentPage = page;
+  backendPage = page; // 如果你有用 backendPage
+
+  // ✅ 有搜尋字就走搜尋，沒有就走全部
+  const term = String(document.getElementById("course-search")?.value || "").trim();
+  if (term) await searchCourses(page);
+  else await showAllCourses(page);
+
+  // ✅ 視覺上回到上方（你說的「往上頂」）
+  scrollToCourseTop();
+}
+function resetToFirstPageAndReload() {
+  currentPage = 1;
+  backendPage = 1; // 如果你有用 backendPage
+  // 用你目前的模式：有搜尋字就走 searchCourses，沒有就 showAllCourses
+  const term = String(document.getElementById("course-search")?.value || "").trim();
+  if (term) searchCourses(1);
+  else showAllCourses(1);
+}
+        function formatScheduleLine(card, sch) {
+            return `週${dayToZh(sch.day)} 第${sch.start}-${sch.end}節`;
+        }
+
+        // ===== 系所對應資料 =====
+        const departmentData = {
+  // 二專
+  "2-tech-short": [
+    "1D110" // 二專醫護教育暨數位學習科
+  ],
+  // 二技
+  "2-tech": [
+    "11120", // 二年制護理系
+    "1C120", // 二年制護理助產及婦女健康系
+    "1D120", // 二年制醫護教育暨數位學習系
+    "21140", // 四年制健康事業管理系（⚠ 二技實際上共用）
+    "22140", // 四年制資訊管理系
+    "24120", // 二年制長期照護系
+    "31120"  // 二年制嬰幼兒保育系
+  ],
+  // 二技（三年）
+  "2-tech-3y": [
+    "11120", // 二年制護理系
+    "1C120", // 二年制護理助產及婦女健康系
+    "21140", // 四年制健康事業管理系
+    "24120"  // 二年制長期照護系
+  ],
+  // 四技
+  "4-tech": [
+    "11140", // 四年制護理系
+    "13140", // 四年制高齡健康照護系
+    "21120", // 四年制健康事業管理系
+    "22140", // 四年制資訊管理系
+    "23140", // 四年制休閒產業與健康促進系
+    "25140", // 四年制語言治療與聽力學系
+    "31120", // 二年制嬰幼兒保育系（實務上四技/二技共用）
+    "32140", // 四年制運動保健系
+    "33140", // 四年制生死與健康心理諮商系
+    "41140", // 高齡與運動健康暨嬰幼兒保育技優專班
+    "42140"  // 智慧健康科技技優專班
+  ],
+  // 學士後多元專長
+  "post-grad-multi": [
+    "1D120", // 二年制醫護教育暨數位學習系
+    "24120"  // 二年制長期照護系
+  ],
+  // 碩士班
+  "master": [
+    "11169", // 護理系中西醫結合護理碩士班
+    "13160", // 高齡健康照護系碩士班
+    "1C160", // 護理助產及婦女健康系護理助產碩士班
+    "1D160", // 醫護教育暨數位學習系碩士班
+    "20160", // 健康科技學院碩士班
+    "21160", // 健康事業管理系碩士班
+    "22160", // 資訊管理系碩士班
+    "23160", // 休閒產業與健康促進系旅遊健康碩士班
+    "24160", // 長期照護系碩士班
+    "25161", // 語言治療與聽力學系碩士班語言治療組
+    "31160", // 嬰幼兒保育系碩士班
+    "32160", // 運動保健系碩士班
+    "33161", // 生死與健康心理諮商系碩士班生死學組
+    "43160"  // 人工智慧與健康大數據研究所
+  ],
+  // 博士班
+  "phd": [
+    "11170", // 護理系博士班
+    "11870"  // 國際護理博士班
+  ],
+  // 學士後學位學程
+  "post-grad-degree": [
+    "31180" // 嬰幼兒保育系學士後教保學位學程
+  ],
+  // 學士後系
+  "post-grad-dept": [
+    "11190" // 護理系學士後學士班
+  ]
+};
+
+        // ===== 狀態變數 =====
+        let selectedCourses = [];      // 已選課程陣列
+        let currentFilter = "all";     // 當前篩選條件
+        let creditChart = null;        // 圖表實例
+        let selectedDepartments = [];  // 已選系所陣列
+        let currentSection = "section-courses"; // 當前顯示的區塊
+        let courses = []; // 從API載入的課程
+        
+        // 分頁相關變數
+        let currentPage = 1;
+        const coursesPerPage = 20; // 每頁顯示20堂課
+        let totalPages = 1;
+        let currentDisplayedCourses = [];
+        let backendTotal = 0;       // 後端回的 total
+        let backendTotalPages = 1;  // 後端回的 totalPages
+        let backendPage = 1;        // 後端回的 page
+
+
+        // ===== API課程正規化函數 =====
+        function normalizeCourseFromApi(c) {
+            console.log("COURSE RAW =", c);
+
+            const sections = Array.isArray(c.sections) ? c.sections : [];
+            const time = [];
+
+            for (const sec of sections) {
+                const schedules = Array.isArray(sec.schedules) ? sec.schedules : [];
+                for (const s of schedules) {
+                    const day = Number(s.day);
+                    const start = Number(s.start);
+                    const end = Number(s.end);
+                    if (!day || !start || !end) continue;
+
+                    const sessions = [];
+                    for (let k = start; k <= end; k++) sessions.push(k);
+                    time.push({ day, session: sessions });
+                }
+            }
+
+            let foundLoc = "";
+            for (const sec of sections) {
+                const secLoc = (pickLocation(sec) || "").trim();
+                if (secLoc) { foundLoc = secLoc; break; }
+
+                const schedules = Array.isArray(sec.schedules) ? sec.schedules : [];
+                for (const s of schedules) {
+                    const schLoc = (pickLocation(s) || "").trim();
+                    if (schLoc) { foundLoc = schLoc; break; }
+                }
+                if (foundLoc) break;
+            }
+
+            const deptCode = String(c.department ?? "");
+            const deptName = DEPT_MAP[deptCode] || deptCode || "未分類";
+
+            return {
+                id: c.id || c._id,
+                code: c.code || c.id,
+                name: c.name || "未命名課程",
+                credit: Number(c.credits ?? c.credit ?? 0),
+                teacher: c.teacher || "未提供",
+                deptCode,
+                dept: deptName,
+                location: foundLoc || (pickLocation(c) || "").trim() || "",
+                desc: c.desc || "",
+                type: c.required === true ? "core" : "elective",
+                grade: String(c.grade ?? "1"),
+                category: c.category || "major",
+                time: time.length ? time : [],
+                
+                sections,
+            };
+        }
+
+        // ===== 導航功能 =====
+        function switchSection(sectionId) {
+            currentSection = sectionId;
+            
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            const clickedLink = Array.from(document.querySelectorAll('.nav-link')).find(link => 
+                link.getAttribute('onclick')?.includes(sectionId)
+            );
+            if (clickedLink) clickedLink.classList.add('active');
+            
+            document.querySelectorAll('.section-container').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+            
+            if (sectionId === 'section-courses' && currentDisplayedCourses.length > 0) {
+                updatePaginationDisplay();
+            }
+            
+            if (sectionId === 'section-analysis') {
+                updateCreditDistribution();
+            }
+        }
+
+        // ===== 登入/登出功能 =====
+        async function handleLogin() {
+            const user = document.getElementById("username").value.trim();
+            const pass = document.getElementById("password").value;
+
+            if (!user) return alert("請輸入學號");
+            if (!pass) return alert("請輸入密碼");
+
+            try {
+                const data = await apiFetch("/api/auth/login", {
+                    method: "POST",
+                    body: { email: user, password: pass },
+                });
+
+                const token = data.accessToken || data.token || data.jwt || "";
+                if (!token) return alert("登入成功但沒有拿到 accessToken");
+
+                const payload = parseJwtPayload(token);
+                let uid = payload?.userId || payload?.uid || payload?.id || payload?.sub || payload?._id || "";
+
+                if (!uid) return alert("登入成功但 JWT 裡找不到 userId");
+
+                auth.accessToken = token;
+                auth.userId = uid;
+                try {
+                    const saved = await apiFetch("/api/planner");
+                    if (auth.accessToken !== token) return;
+                    selectedCourses = saved.courses.map(normalizeCourseFromApi);
+                    updateSelectedCoursesList();
+                    updateScheduleDisplay();
+                } catch (e) {
+                    if (auth.accessToken !== token) return;
+                    auth.accessToken = "";
+                    auth.userId = "";
+                    alert("無法載入已儲存的課表：" + e.message);
+                    return;
+                }
+                localStorage.setItem("accessToken", token);
+                localStorage.setItem("userId", uid);
+
+                document.getElementById("login-overlay").style.display = "none";
+                document.getElementById("app-content").style.display = "block";
+                document.getElementById('display-user-id').textContent = user;
+
+                await showAllCourses();
+                setupFilterListeners();
+            } catch (e) {
+                console.error("LOGIN ERROR =", e);
+                alert("登入失敗：" + e.message);
+            }
+        }
+
+        function parseJwtPayload(token) {
+            try {
+                const base64Url = token.split(".")[1];
+                const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+                const jsonPayload = decodeURIComponent(
+                    atob(base64)
+                        .split("")
+                        .map(c => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+                        .join("")
+                );
+                return JSON.parse(jsonPayload);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function handleLogout() {
+            document.getElementById('username').value = "";
+            document.getElementById('password').value = "";
+            document.getElementById('login-overlay').style.display = 'flex';
+            document.getElementById('app-content').style.display = 'none';
+
+            auth.accessToken = "";
+            auth.userId = "";
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("userId");
+
+            selectedCourses = [];
+            selectedDepartments = [];
+            updateSelectedCoursesList();
+            updateScheduleDisplay();
+            updateDeptTags();
+        }
+
+        // ===== 系所選擇功能 =====
+        function updateDepartmentOptions() {
+            const systemSelect = document.getElementById('edu-system-select');
+            const deptSelect = document.getElementById('department-select');
+            const selectedSystem = systemSelect.value;
+            
+            if (selectedSystem === "") {
+                deptSelect.innerHTML = '<option value="">請先選擇學制</option>';
+                deptSelect.disabled = true;
+                return;
+            }
+            
+            deptSelect.disabled = false;
+            deptSelect.innerHTML = '<option value="">請選擇系所</option>';
+            
+            if (departmentData[selectedSystem]) {
+  departmentData[selectedSystem].forEach(code => {
+    const option = document.createElement("option");
+    option.value = code;               // ✅ value 存代碼 22140
+    option.textContent = deptLabel(code); // ✅ 顯示 四年制資訊管理系
+    deptSelect.appendChild(option);
+                });
+            }
+        }
+
+function selectDepartment() {
+  const deptSelect = document.getElementById("department-select");
+  const selectedCode = deptSelect.value;
+
+  if (selectedCode && !selectedDepartments.includes(selectedCode)) {
+    selectedDepartments.push(selectedCode);  // ✅ 存代碼
+    updateDeptTags();
+    deptSelect.selectedIndex = 0;
+  }
+}
+
+function applySelectedDepartments() {
+  if (selectedDepartments.length === 0) {
+    alert("請先選擇至少一個系所");
+    return;
+  }
+  goToPage(1, { scrollTop: true, direction: 0 }); // ✅ 回到第 1 頁
+}
+
+        function updateDeptTags() {
+            const container = document.getElementById('dept-tags-container');
+            const tagsContainer = document.getElementById('selected-dept-tags');
+            
+            if (selectedDepartments.length === 0) {
+                tagsContainer.style.display = 'none';
+                return;
+            }
+            
+            tagsContainer.style.display = 'block';
+            container.innerHTML = '';
+            
+selectedDepartments.forEach(code => {
+  const tag = document.createElement("span");
+  tag.className = "dept-tag";
+  tag.textContent = deptLabel(code);     // ✅ 顯示四年制資訊管理系
+  tag.onclick = () => removeDepartment(code);
+  container.appendChild(tag);
+});
+        }
+
+function removeDepartment(code) {
+  selectedDepartments = selectedDepartments.filter(d => d !== code);
+  updateDeptTags();
+  goToPage(1, { scrollTop: true, direction: 0 });
+}
+
+        function clearSelectedDepts() {
+            selectedDepartments = [];
+            updateDeptTags();
+            showAllCourses();
+            
+            document.getElementById('edu-system-select').selectedIndex = 0;
+            document.getElementById('department-select').innerHTML = '<option value="">請先選擇學制</option>';
+            document.getElementById('department-select').disabled = true;
+        }
+
+        // ===== 分頁功能 =====
+        function displayCoursesWithPagination(courseList) {
+            currentDisplayedCourses = courseList;
+            totalPages = Math.ceil(courseList.length / coursesPerPage);
+            currentPage = 1;
+            updatePaginationDisplay();
+        }
+
+        function updatePaginationDisplay() {
+            const container = document.getElementById('course-results');
+            const paginationContainer = document.getElementById('pagination-container');
+            
+            if (currentDisplayedCourses.length === 0) {
+                container.innerHTML = '<p>找不到符合條件的課程</p>';
+                paginationContainer.style.display = 'none';
+                return;
+            }
+            
+            const startIndex = (currentPage - 1) * coursesPerPage;
+            const endIndex = Math.min(startIndex + coursesPerPage, currentDisplayedCourses.length);
+            const pageCourses = currentDisplayedCourses.slice(startIndex, endIndex);
+            
+            displayCourses(pageCourses);
+            
+            document.getElementById('page-info').textContent = `第 ${currentPage} 頁 / 共 ${totalPages} 頁 (共 ${currentDisplayedCourses.length} 門課程)`;
+            document.getElementById('prev-btn').disabled = currentPage === 1;
+            document.getElementById('next-btn').disabled = currentPage === totalPages;
+            
+            paginationContainer.style.display = totalPages > 1 ? 'flex' : 'none';
+        }
+
+        function previousPage() {
+  if (currentPage > 1) goToPage(currentPage - 1, { scrollTop: false, direction: -1 });
+}
+
+function nextPage() {
+  if (currentPage < totalPages) goToPage(currentPage + 1, { scrollTop: false, direction: +1 });
+}
+
+        // ===== 篩選器功能 =====
+        function setupFilterListeners() {
+            const filterItems = document.querySelectorAll('.filter-item');
+            filterItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    filterItems.forEach(f => f.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.getAttribute("data-filter");
+                    goToPage(1, { scrollTop: true, direction: 0 });
+                });
+            });
+        }
+// ✅ 補上：篩選器用的 filterCourses（你目前缺這個）
+function filterCourses() {
+  // 以目前已載入的 courses 為基礎做前端篩選
+  let filtered = Array.isArray(courses) ? [...courses] : [];
+
+  // 1) 系所篩選
+  if (selectedDepartments.length > 0) {
+    filtered = filtered.filter(course =>
+      selectedDepartments.some(dept => String(course.dept || "").includes(dept))
+    );
+  }
+
+  // 2) 類型/年級篩選（currentFilter 可能是 core/elective/general 或 1/2/3/4 或 all）
+  filtered = filtered.filter(course => {
+    return (
+      currentFilter === "all" ||
+      course.type === currentFilter ||
+      course.grade === currentFilter
+    );
+  });
+
+  // 3) 搜尋框（如果你希望點篩選也套用搜尋字）
+  const term = String(document.getElementById("course-search")?.value || "")
+    .trim()
+    .toLowerCase();
+
+  if (term) {
+    filtered = filtered.filter(c => {
+      const name = String(c.name || "").toLowerCase();
+      const code = String(c.code || "").toLowerCase();
+      const teacher = String(c.teacher || "").toLowerCase();
+      return name.includes(term) || code.includes(term) || teacher.includes(term);
+    });
+  }
+
+  // 4) 顯示 + 分頁（你的前端分頁切片邏輯）
+displayCourses(filtered);
+
+// ✅ 保持後端分頁條不要消失：用「後端的 page/totalPages/total」
+renderBackendPagination({
+  page: currentPage,
+  totalPages: totalPages,
+  total: lastTotalFromBackend ?? (currentDisplayedTotal ?? 0),
+});
+}
+// ===== 統一分頁 / 重新載入入口（一定要貼）=====
+let lastMode = "all"; // "all" | "search"
+
+async function goToPage(page, { scrollTop = false, direction = 0 } = {}) {
+  let p = Math.max(1, Number(page) || 1);
+
+  const term = String(document.getElementById("course-search")?.value || "").trim();
+
+  while (true) {
+    currentPage = p;
+
+    let shownCount = 0;
+    if (term) {
+      shownCount = await searchCourses(p);   // 你也要讓 searchCourses 回傳顯示筆數（同 showAllCourses）
+    } else {
+      shownCount = await showAllCourses(p);  // ✅ showAllCourses 會回傳這頁顯示幾筆
+    }
+
+    // ✅ 有資料就停
+    if (shownCount > 0) break;
+
+    // ✅ 沒資料：如果沒有指定方向，就停（避免無限跳）
+    if (direction === 0) break;
+
+    // ✅ 沒資料：依方向往前/往後找下一頁
+    const next = p + direction;
+    if (next < 1 || next > totalPages) break;
+    p = next;
+  }
+
+  if (scrollTop) {
+    const section = document.getElementById("section-courses");
+    if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+        // ===== 課程搜尋功能 (API整合) =====
+async function showAllCourses(page = 1) {
+  try {
+    // ✅ 目標頁
+    const targetPage = Math.max(1, Number(page) || 1);
+
+    // ✅ 系所代碼（你現在 selectedDepartments 存代碼）
+    const deptCodes = Array.isArray(selectedDepartments) ? selectedDepartments.filter(Boolean) : [];
+    const deptParam = deptCodes.length ? `&dept=${encodeURIComponent(deptCodes.join(","))}` : "";
+
+    const url = `/api/courses?page=${targetPage}&pageSize=${coursesPerPage}${deptParam}`;
+    console.log("[showAllCourses] FETCH URL =", url);
+
+    const data = await apiFetch(url);
+    const apiCourses = data.items || data.data?.items || [];
+
+    courses = apiCourses.map(normalizeCourseFromApi);
+
+    // ✅ 後端分頁資訊（後端有依 dept 篩選才會正確）
+    totalPages = data.totalPages || data.data?.totalPages || 1;
+    currentPage = data.page || data.data?.page || targetPage;
+    const backendTotal = data.total ?? data.data?.total ?? 0;
+
+    // ===== 前端篩選（必修/年級）=====
+    let filteredCourses = courses.filter(course => {
+      return (
+        currentFilter === "all" ||
+        course.type === currentFilter ||
+        course.grade === currentFilter
+      );
+    });
+
+    // ✅ 注意：系所已經交給後端用 dept 篩了，這裡「不需要再 includes 篩一次」
+    // （避免你後端已經篩過了，前端又把資料篩光光）
+
+    currentDisplayedCourses = filteredCourses;
+    displayCourses(currentDisplayedCourses);
+
+    // ✅ 分頁 UI
+    document.getElementById("page-info").textContent =
+      `第 ${currentPage} 頁 / 共 ${totalPages} 頁（後端總數：${backendTotal}）`;
+
+    document.getElementById("prev-btn").disabled = currentPage <= 1;
+    document.getElementById("next-btn").disabled = currentPage >= totalPages;
+    document.getElementById("pagination-container").style.display =
+      totalPages > 1 ? "flex" : "none";
+
+    return currentDisplayedCourses.length;
+  } catch (e) {
+    console.error("載入課程失敗:", e);
+    alert(`載入課程失敗：${e.message}`);
+    return 0;
+  }
+}
+
+
+function nextPage() {
+  if (currentPage < totalPages) goToPage(currentPage + 1);
+}
+
+        function filterCoursesBySelectedDepts() {
+            if (selectedDepartments.length === 0) {
+                showAllCourses();
+                return;
+            }
+            
+            const filteredCourses = courses.filter(course => {
+                return selectedDepartments.some(dept => course.dept.includes(dept));
+            });
+            
+            displayCoursesWithPagination(filteredCourses);
+        }
+
+        // ===== 課程顯示功能 =====
+        function displayCourses(courseList) {
+            const container = document.getElementById('course-results');
+            
+            if (courseList.length === 0) {
+                container.innerHTML = '<p>本頁沒有課程</p>';
+                return;
+            }
+            
+            let html = `<h3>顯示 ${courseList.length} 門課程 (第 ${currentPage} 頁)</h3><div class="course-list">`;
+            
+            courseList.forEach(course => {
+                const isSelected = selectedCourses.some(c => c.id === course.id);
+                const timeText = formatCourseTime(course.time);
+                const allSchedules = formatAllSchedulesFromCourse(course);
+                
+                html += `
+                <div class="course-card">
+                    <div class="course-title">${course.code} ${course.name}</div>
+                    <div class="course-info">學分: ${course.credit} | 類型: ${getTypeText(course.type)} | 年級: ${course.grade}</div>
+                    <div class="course-info">系所: ${course.dept} | 教師: ${course.teacher}</div>
+                    <div class="course-info">時間: ${timeText}</div>
+                    <div class="course-info">地點: ${course.location || "未提供"}</div>
+                    <button class="add-course-btn" ${isSelected ? 'disabled' : ''} onclick="addCourse('${course.id}')">
+                        ${isSelected ? '已加入' : '加入課表'}
+                    </button>
+                    <button style="margin-left: 5px; padding: 10px 15px; background: #eee; border: none; border-radius: 6px; cursor: pointer;" onclick="showCourseDetail('${course.id}')">
+                        詳細
+                    </button>
+                </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function formatCourseTime(timeArray) {
+            const dayMap = ["", "週一", "週二", "週三", "週四", "週五"];
+            return timeArray.map(t => {
+                const sessions = Array.isArray(t.session) ? t.session.join(",") : t.session;
+                return `${dayMap[t.day]} 第${sessions}節`;
+            }).join("; ");
+        }
+
+        function formatAllSchedulesFromCourse(course) {
+            const sections = Array.isArray(course.sections) ? course.sections : [];
+            const lines = [];
+
+            for (const sec of sections) {
+                const schedules = Array.isArray(sec.schedules) ? sec.schedules : [];
+                for (const sch of schedules) {
+                    lines.push(formatScheduleLine(course, sch));
+                }
+            }
+
+            return lines.length ? lines.join("<br>") : "（無時間資料）";
+        }
+
+        function getTypeText(type) {
+            const typeMap = {
+                "core": "必修",
+                "elective": "選修",
+                "general": "通識"
+            };
+            return typeMap[type] || type;
+        }
+
+        // ===== 課程詳情彈窗 =====
+        function showCourseDetail(courseId) {
+            const course = courses.find(c => c.id === courseId);
+            if (!course) return;
+
+            const timeText = formatCourseTime(course.time);
+
+            document.getElementById('modal-course-title').textContent = `${course.code} ${course.name}`;
+            document.getElementById('modal-course-details').innerHTML = `
+                <p><strong>課程名稱：</strong>${course.name}</p>
+                <p><strong>課程代碼：</strong>${course.code}</p>
+                <p><strong>學分數：</strong>${course.credit}</p>
+                <p><strong>課程類型：</strong>${getTypeText(course.type)}</p>
+                <p><strong>適合年級：</strong>${course.grade}</p>
+                <p><strong>開課系所：</strong>${course.dept}</p>
+                <p><strong>授課教師：</strong>${course.teacher}</p>
+                <p><strong>上課時間：</strong>${timeText}</p>
+                <p><strong>上課地點：</strong>${course.location || "未提供"}</p>
+                <p><strong>課程簡介：</strong>${course.desc}</p>
+            `;
+
+            document.getElementById('course-detail-modal').style.display = 'flex';
+        }
+
+        function closeCourseDetail() {
+            document.getElementById('course-detail-modal').style.display = 'none';
+        }
+
+        // ===== 課程加入功能 =====
+        function addCourse(courseId) {
+            const course = courses.find(c => c.id === courseId);
+            if (!course) return;
+
+            if (selectedCourses.some(c => c.id === courseId)) {
+                alert("此課程已加入課表");
+                return;
+            }
+
+            const hasConflict = checkTimeConflict(course);
+            if (hasConflict) {
+                if (!confirm("此課程與已選課程時間衝突，是否仍要加入？")) {
+                    return;
+                }
+            }
+
+            selectedCourses.push(course);
+            updateSelectedCoursesList();
+            updateScheduleDisplay();
+            updateCreditDistribution();
+            
+            if (currentDisplayedCourses.length > 0) {
+                updatePaginationDisplay();
+            }
+        }
+
+        function checkTimeConflict(newCourse) {
+            for (const selectedCourse of selectedCourses) {
+                for (const newTime of newCourse.time) {
+                    for (const selectedTime of selectedCourse.time) {
+                        if (newTime.day === selectedTime.day) {
+                            const newSessions = Array.isArray(newTime.session) ? newTime.session : [newTime.session];
+                            const selectedSessions = Array.isArray(selectedTime.session) ? selectedTime.session : [selectedTime.session];
+                            
+                            if (newSessions.some(s => selectedSessions.includes(s))) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        // ===== 已選課程清單功能 =====
+        function updateSelectedCoursesList() {
+            const container = document.getElementById('selected-courses-list');
+            
+            if (selectedCourses.length === 0) {
+                container.innerHTML = '<p>尚未選擇任何課程</p>';
+                document.getElementById('total-credits').textContent = '0';
+                return;
+            }
+            
+            let html = '';
+            let totalCredits = 0;
+            
+            selectedCourses.forEach(course => {
+                totalCredits += course.credit;
+                const timeText = formatCourseTime(course.time);
+                
+                html += `
+                <div class="selected-course-item">
+                    <div>
+                        <strong>${course.code} ${course.name}</strong><br>
+                        <small>${timeText} | ${course.credit}學分 | ${course.teacher}</small>
+                    </div>
+                    <button class="remove-course-btn" onclick="removeCourse('${course.id}')">移除</button>
+                </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            document.getElementById('total-credits').textContent = totalCredits;
+        }
+
+        function removeCourse(courseId) {
+            selectedCourses = selectedCourses.filter(c => c.id !== courseId);
+            updateSelectedCoursesList();
+            updateScheduleDisplay();
+            updateCreditDistribution();
+            
+            if (currentDisplayedCourses.length > 0) {
+                updatePaginationDisplay();
+            }
+            
+            document.getElementById('conflict-warning').style.display = 'none';
+        }
+
+        // ===== 課表顯示功能 =====
+        function updateScheduleDisplay() {
+            const cells = document.querySelectorAll('.schedule-cell');
+            cells.forEach(cell => {
+                cell.innerHTML = '';
+            });
+            
+            selectedCourses.forEach(course => {
+                course.time.forEach(timeSlot => {
+                    const day = timeSlot.day;
+                    const sessions = Array.isArray(timeSlot.session) ? timeSlot.session : [timeSlot.session];
+                    
+                    sessions.forEach(session => {
+                        const cell = document.querySelector(`.schedule-cell[data-day="${day}"][data-session="${session}"]`);
+                        if (cell) {
+                            const courseElement = document.createElement('div');
+                            courseElement.className = 'course-in-schedule';
+                            courseElement.innerHTML = `<strong>${course.code}</strong><br>${course.name}`;
+                            courseElement.title = `${course.name} - ${course.teacher} - ${course.location}`;
+                            courseElement.onclick = () => removeCourse(course.id);
+                            cell.appendChild(courseElement);
+                        }
+                    });
+                });
+            });
+        }
+
+        // ===== 學分分佈圖表功能 =====
+        function updateCreditDistribution() {
+            let requiredMajor = 0;
+            let requiredGeneral = 0;
+            let electiveMajor = 0;
+            let electiveGeneral = 0;
+            
+            selectedCourses.forEach(course => {
+                if (course.type === 'core') {
+                    if (course.category === 'general') {
+                        requiredGeneral += course.credit;
+                    } else {
+                        requiredMajor += course.credit;
+                    }
+                } else if (course.type === 'elective') {
+                    if (course.category === 'general') {
+                        electiveGeneral += course.credit;
+                    } else {
+                        electiveMajor += course.credit;
+                    }
+                } else if (course.type === 'general') {
+                    requiredGeneral += course.credit;
+                }
+            });
+            
+            const totalRequired = requiredMajor + requiredGeneral;
+            const totalElective = electiveMajor + electiveGeneral;
+            
+            document.getElementById('required-credits').textContent = totalRequired;
+            document.getElementById('elective-credits').textContent = totalElective;
+            document.getElementById('required-major').textContent = requiredMajor;
+            document.getElementById('required-general').textContent = requiredGeneral;
+            document.getElementById('elective-major').textContent = electiveMajor;
+            document.getElementById('elective-general').textContent = electiveGeneral;
+            
+            updateCreditChart(requiredMajor, requiredGeneral, electiveMajor, electiveGeneral);
+        }
+
+        function updateCreditChart(requiredMajor, requiredGeneral, electiveMajor, electiveGeneral) {
+            const ctx = document.getElementById('creditChart');
+            
+            if (creditChart) creditChart.destroy();
+            
+            creditChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['專業必修', '通識必修', '專業選修', '通識選修'],
+                    datasets: [{
+                        data: [requiredMajor, requiredGeneral, electiveMajor, electiveGeneral],
+                        backgroundColor: [
+                            '#007d66',
+                            '#00a896',
+                            '#ff6b6b',
+                            '#ff9e6d'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: { family: '"Microsoft JhengHei", sans-serif' }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    return `${label}: ${value} 學分`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ===== 其他功能 =====
+        function clearSchedule() {
+            if (selectedCourses.length === 0) {
+                alert("課表已是空的");
+                return;
+            }
+            
+            if (confirm("確定要清空整個課表嗎？")) {
+                selectedCourses = [];
+                updateSelectedCoursesList();
+                updateScheduleDisplay();
+                updateCreditDistribution();
+                
+                if (currentDisplayedCourses.length > 0) {
+                    updatePaginationDisplay();
+                }
+                
+                document.getElementById('conflict-warning').style.display = 'none';
+            }
+        }
+
+        async function saveSchedule() {
+            if (selectedCourses.length === 0) {
+                alert("請先選擇課程再儲存");
+                return;
+            }
+            
+            try {
+                const payload = {
+                    courses: selectedCourses.map(c => ({ courseId: c.id })),
+                };
+
+                await apiFetch("/api/planner", {
+                    method: "POST",
+                    body: payload,
+                });
+
+                alert("✅ 已儲存到後端 planner！");
+            } catch (e) {
+                alert(`儲存失敗：${e.message}`);
+            }
+        }
+
+        // ===== 事件監聽器 =====
+        window.onclick = function(event) {
+            const modal = document.getElementById('course-detail-modal');
+            if (event.target === modal) closeCourseDetail();
+        };
+
+        document.getElementById('course-search').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') searchCourses();
+        });
+
+        // ===== 頁面初始化 =====
+        window.addEventListener('DOMContentLoaded', function() {
+            setupFilterListeners();
+        });
+    </script>
+</body>
+</html>

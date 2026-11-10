@@ -46,16 +46,47 @@ function isOverlap(aStart, aEnd, bStart, bEnd) {
 export async function addPlannerItem(req, res) {
   try {
     // ===== 基本檢查 =====
-    const userId = req.header("x-user-id");
-    const { courseId } = req.body || {};
+    const { courseId, courses } = req.body || {};
+    const userId = courses === undefined ? req.header("x-user-id") : req.userId;
 
     console.log("ADD PLANNER HIT:", { userId, courseId });
 
     if (!userId) {
       return res.status(401).json({
         error: "UNAUTHORIZED",
-        message: "缺少 x-user-id",
+        message: courses === undefined ? "缺少 x-user-id" : "請先登入",
       });
+    }
+
+    if (courses !== undefined) {
+      if (!Array.isArray(courses) || courses.length === 0 ||
+          courses.some((course) => typeof course?.courseId !== "string" || !course.courseId.trim())) {
+        return res.status(400).json({
+          error: "BAD_REQUEST",
+          message: "課表必須包含有效的課程 ID",
+        });
+      }
+
+      const courseIds = [...new Set(courses.map((course) => course.courseId))];
+      const count = await prisma.$transaction(async (tx) => {
+        const count = await tx.course.count({ where: { id: { in: courseIds } } });
+        if (count !== courseIds.length) return null;
+
+        await tx.planner.deleteMany({ where: { userId, courseId: { notIn: courseIds } } });
+        await tx.planner.createMany({
+          data: courseIds.map((courseId) => ({ userId, courseId })),
+          skipDuplicates: true,
+        });
+        return count;
+      }, { isolationLevel: "Serializable" });
+
+      if (count === null) {
+        return res.status(400).json({
+          error: "BAD_REQUEST",
+          message: "課表包含不存在的課程",
+        });
+      }
+      return res.json({ ok: true, count });
     }
 
     if (!courseId || typeof courseId !== "string") {
@@ -285,6 +316,12 @@ return res.status(409).json({
       item: created,
     });
   } catch (err) {
+    if (err.code === "P2034") {
+      return res.status(409).json({
+        error: "SAVE_CONFLICT",
+        message: "課表同時被更新，請再儲存一次",
+      });
+    }
     console.error("addPlannerItem ERROR =", err);
     return res.status(500).json({
       error: "INTERNAL_ERROR",
