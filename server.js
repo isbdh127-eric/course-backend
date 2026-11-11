@@ -27,6 +27,7 @@ const PORT = Number(process.env.PORT || 3000);
 
 
 const allowedOrigins = [
+  "https://isbdh127-eric.github.io",
   "http://127.0.0.1:5500",
   "http://localhost:5500",
   "http://localhost:3000",
