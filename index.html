@@ -1054,7 +1054,9 @@
 }
 
         // ===== API 設定 =====
-        const API_BASE = location.protocol === "file:" || location.port === "5500"
+        const API_BASE = location.origin === "https://isbdh127-eric.github.io"
+            ? "https://course-backend-api-pfyj.onrender.com"
+            : location.protocol === "file:" || location.port === "5500"
             ? "http://localhost:3000"
             : location.origin;
         
